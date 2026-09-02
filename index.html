@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر هيبة | عجلة الحظ المتطورة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: #0b0e14; color: #fff; padding-bottom: 80px; display: flex; flex-direction: column; align-items: center; }
+        
+        .app-header { width: 100%; max-width: 480px; padding: 15px; display: flex; justify-content: space-between; align-items: center; background: #121721; border-bottom: 1px solid #1f2937; }
+        .store-brand { display: flex; align-items: center; gap: 10px; }
+        .logo { width: 40px; height: 40px; background: linear-gradient(135deg, #d4af37, #8a6d1c); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: #000; }
+        .store-title h2 { font-size: 1rem; color: #fff; }
+        .store-title p { font-size: 0.75rem; color: #8b949e; }
+        .btn-admin { background: #1f2937; color: #f39c12; border: 1px solid #f39c12; padding: 6px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+
+        .container { width: 100%; max-width: 480px; padding: 15px; }
+        .section-title { text-align: center; font-size: 1.3rem; font-weight: bold; margin: 10px 0; color: #fff; }
+        
+        /* Stats Dashboard */
+        .user-stats { display: flex; justify-content: space-between; background: #121721; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #1f2937; }
+        .stat-box { text-align: center; }
+        .stat-value { font-size: 1.1rem; font-weight: bold; color: #f39c12; }
+        .stat-label { font-size: 0.75rem; color: #8b949e; }
+
+        /* Canvas Wheel */
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 15px auto; }
+        #wheelCanvas { width: 280px; height: 280px; border-radius: 50%; border: 5px solid #d4af37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 25px solid #e74c3c; z-index: 10; }
+        .spin-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: linear-gradient(135deg, #d4af37, #8a6d1c); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; z-index: 11; cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+
+        .banner-notice { background: rgba(243, 156, 18, 0.1); border: 1px solid rgba(243, 156, 18, 0.3); color: #f1c40f; text-align: center; padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 15px; }
+        .btn-action { width: 100%; background: #27ae60; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+
+        /* Pages & Cards */
+        .page { display: none; }
+        .page.active { display: block; }
+        .card { background: #121721; border-radius: 12px; padding: 15px; border: 1px solid #1f2937; margin-bottom: 15px; }
+        .card h3 { font-size: 1rem; margin-bottom: 12px; color: #fff; border-bottom: 1px solid #1f2937; padding-bottom: 8px; }
+        
+        .prize-item, .store-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 8px; background: #1a2332; border-radius: 8px; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        .badge-legendary { background: rgba(241, 196, 15, 0.2); color: #f1c40f; border: 1px solid #f1c40f; }
+        
+        .btn-buy { background: #e67e22; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+        
+        /* Modals & Forms */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; }
+        .modal-content { background: #121721; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; border: 1px solid #1f2937; }
+        input, select { width: 100%; padding: 10px; margin: 8px 0; background: #1a2332; border: 1px solid #1f2937; color: #fff; border-radius: 6px; }
+
+        /* Nav */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: #121721; border-top: 1px solid #1f2937; display: flex; justify-content: space-around; padding: 10px 0; z-index: 50; }
+        .nav-item { text-align: center; color: #8b949e; text-decoration: none; font-size: 0.75rem; cursor: pointer; }
+        .nav-item.active { color: #f39c12; }
+        .nav-item i { font-size: 1.2rem; display: block; margin-bottom: 3px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <div class="store-brand">
+            <div class="logo">H</div>
+            <div class="store-title">
+                <h2>متجر هيبة</h2>
+                <p>@tnn40</p>
+            </div>
+        </div>
+        <button class="btn-admin" onclick="openAdminModal()"><i class="fa-solid fa-lock"></i> لوحة الإدارة</button>
+    </div>
+
+    <div class="container">
+        
+        <!-- Stats Bar -->
+        <div class="user-stats">
+            <div class="stat-box">
+                <div class="stat-value" id="userPoints">0</div>
+                <div class="stat-label">نقاطي</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="referralCount">0</div>
+                <div class="stat-label">الإحالات</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="spinTimer">جاهز</div>
+                <div class="stat-label">التدوير القادم</div>
+            </div>
+        </div>
+
+        <!-- PAGE 1: WHEEL -->
+        <div id="page-home" class="page active">
+            <div class="section-title">عجلة الحظ الكبرى</div>
+            
+            <div class="banner-notice">
+                يجب الاشتراك في القناة للتدوير! يتاح التدوير مرة كل 24 ساعة.
+            </div>
+
+            <button class="btn-action" onclick="openChannel()"><i class="fa-brands fa-telegram"></i> 1. اشترك في القناة أولاً</button>
+
+            <div class="wheel-container">
+                <div class="pointer"></div>
+                <canvas id="wheelCanvas" width="280" height="280"></canvas>
+                <div class="spin-btn" onclick="spinWheel()">أدر</div>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h3><i class="fa-solid fa-share-nodes"></i> نظام الإحالة (اربح نقاط)</h3>
+                <p style="font-size: 0.8rem; color: #8b949e; margin-bottom: 10px;">شارك رابطك مع أصدقائك واكسب 50 نقطة عن كل شخص ينضم!</p>
+                <input type="text" id="refLink" readonly value="https://t.me/tnn40?start=user123">
+                <button class="btn-action" style="background:#3498db; margin-top:5px;" onclick="copyRefLink()">نسخ رابط الإحالة</button>
+            </div>
+        </div>
+
+        <!-- PAGE 2: STORE -->
+        <div id="page-store" class="page">
+            <div class="section-title">متجر استبدال النقاط</div>
+            <div class="card" id="storeItemsList">
+                <!-- Dynamic Items -->
+            </div>
+        </div>
+
+        <!-- PAGE 3: MY PRIZES -->
+        <div id="page-prizes" class="page">
+            <div class="section-title">جوائزي وطلباتي</div>
+            <div class="card" id="myPrizesList">
+                <p style="font-size:0.85rem; color:#8b949e;">لا توجد جوائز مكتسبة حتى الآن.</p>
+            </div>
+        </div>
+
+        <!-- PAGE 4: ADMIN (Hidden) -->
+        <div id="page-admin" class="page">
+            <div class="section-title" style="color: #e74c3c;">لوحة التحكم والأدمن</div>
+            
+            <div class="card">
+                <h3>إضافة / تعديل جوائز العجلة</h3>
+                <input type="text" id="newPrizeName" placeholder="اسم الجائزة">
+                <input type="number" id="newPrizeWeight" placeholder="نسبة الظهور (الوزن: 0 يمنع الربح)">
+                <button class="btn-action" onclick="addWheelPrize()">إضافة للعجلة</button>
+            </div>
+
+            <div class="card">
+                <h3>إدارة منتجات المتجر</h3>
+                <input type="text" id="newProdName" placeholder="اسم المنتج">
+                <input type="number" id="newProdCost" placeholder="التكلفة بالنقال">
+                <button class="btn-action" style="background:#9b59b6;" onclick="addStoreProduct()">إضافة للمتجر</button>
+            </div>
+
+            <div class="card">
+                <h3>متابعة طلبات المشتركين الجدد</h3>
+                <div id="adminOrdersList">
+                    <p style="font-size:0.8rem; color:#8b949e;">لا توجد طلبات جديدة معلقة.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Admin Password Modal -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content">
+            <h3 style="margin-bottom:10px;">ادخل رمز الدخول للوحة الإدارة</h3>
+            <input type="password" id="adminPassInput" placeholder="أدخل الرمز السرّي">
+            <button class="btn-action" onclick="verifyAdmin()">دخول</button>
+            <button class="btn-action" style="background:#7f8c8d;" onclick="closeAdminModal()">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="switchPage('home', this)"><i class="fa-solid fa-house"></i>الرئيسية</div>
+        <div class="nav-item" onclick="switchPage('store', this)"><i class="fa-solid fa-cart-shopping"></i>المتجر</div>
+        <div class="nav-item" onclick="switchPage('prizes', this)"><i class="fa-solid fa-box"></i>جوائزي</div>
+        <div class="nav-item" onclick="openChannel()"><i class="fa-solid fa-bullhorn"></i>القناة</div>
+    </div>
+
+    <script>
+        // Data State
+        let points = parseInt(localStorage.getItem('user_pts')) || 100;
+        let lastSpin = localStorage.getItem('last_spin') || 0;
+        let hasSubscribed = false;
+
+        let wheelPrizes = JSON.parse(localStorage.getItem('wheel_prizes')) || [
+            { name: "100 ألف دينار", weight: 0, color: "#e74c3c" },
+            { name: "50,000 نقطة", weight: 1, color: "#9b59b6" },
+            { name: "حساب ببجي 75+", weight: 0, color: "#f1c40f" },
+            { name: "10,000 شدة", weight: 2, color: "#3498db" },
+            { name: "رشق انستا 20k", weight: 5, color: "#2ecc71" },
+            { name: "حظ أوفر", weight: 10, color: "#34495e" }
+        ];
+
+        let storeProducts = JSON.parse(localStorage.getItem('store_prods')) || [
+            { id: 1, name: "رشق 5000 متابع", cost: 150 },
+            { id: 2, name: "بطاقة شحن 5$", cost: 300 }
+        ];
+
+        let userPrizes = JSON.parse(localStorage.getItem('my_prizes')) || [];
+        let adminOrders = JSON.parse(localStorage.getItem('admin_orders')) || [];
+
+        // App Init
+        window.onload = function() {
+            updateStats();
+            drawWheel();
+            renderStore();
+            renderMyPrizes();
+        };
+
+        function updateStats() {
+            document.getElementById('userPoints').innerText = points;
+            localStorage.setItem('user_pts', points);
+        }
+
+        function switchPage(pageId, element) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById('page-' + pageId).classList.add('active');
+            if(element) element.classList.add('active');
+        }
+
+        function openChannel() {
+            hasSubscribed = true;
+            window.open('https://t.me/HR409', '_blank');
+        }
+
+        // Draw Canvas Wheel
+        function drawWheel() {
+            const canvas = document.getElementById('wheelCanvas');
+            const ctx = canvas.getContext('2d');
+            const numSlices = wheelPrizes.length;
+            const sliceAngle = (2 * Math.PI) / numSlices;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < numSlices; i++) {
+                ctx.beginPath();
+                ctx.fillStyle = wheelPrizes[i].color || '#2c3e50';
+                ctx.moveTo(140, 140);
+                ctx.arc(140, 140, 135, i * sliceAngle, (i + 1) * sliceAngle);
+                ctx.fill();
+                ctx.stroke();
+
+                // Text
+                ctx.save();
+                ctx.translate(140, 140);
+                ctx.rotate(i * sliceAngle + sliceAngle / 2);
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 11px Tahoma";
+                ctx.fillText(wheelPrizes[i].name, 45, 5);
+                ctx.restore();
+            }
+        }
+
+        // Wheel Logic with Weights (Weight 0 is impossible)
+        let isSpinning = false;
+        function spinWheel() {
+            if (isSpinning) return;
+
+            if (!hasSubscribed) {
+                alert("يرجى الاشتراك في القناة الرسمية أولاً للتمكن من التدوير!");
+                openChannel();
+                return;
+            }
+
+            const now = new Date().getTime();
+            if (now - lastSpin < 24 * 60 * 60 * 1000) {
+                alert("يمكنك التدوير مرة واحدة كل 24 ساعة!");
+                return;
+            }
+
+            // Weighted Selection
+            let validPrizes = wheelPrizes.filter(p => p.weight > 0);
+            if (validPrizes.length === 0) {
+                alert("لا توجد جوائز متاحة حالياً!");
+                return;
+            }
+
+            let totalWeight = validPrizes.reduce((sum, p) => sum + p.weight, 0);
+            let random = Math.random() * totalWeight;
+            let selectedPrize = null;
+
+            for (let p of validPrizes) {
+                if (random < p.weight) {
+                    selectedPrize = p;
+                    break;
+                }
+                random -= p.weight;
+            }
+
+            let prizeIndex = wheelPrizes.indexOf(selectedPrize);
+
+            // Rotation animation
+            isSpinning = true;
+            const canvas = document.getElementById('wheelCanvas');
+            const degrees = 360 * 5 + (360 - (prizeIndex * (360 / wheelPrizes.length))) - 30;
+            canvas.style.transition = "transform 4s ease-out";
+            canvas.style.transform = `rotate(${degrees}deg)`;
+
+            setTimeout(() => {
+                isSpinning = false;
+                lastSpin = new Date().getTime();
+                localStorage.setItem('last_spin', lastSpin);
+                
+                alert(`مبروك! لقد حصلت على: ${selectedPrize.name}`);
+                userPrizes.push(selectedPrize.name);
+                localStorage.setItem('my_prizes', JSON.stringify(userPrizes));
+                
+                // Add to Admin Orders
+                adminOrders.push({ type: "ربح عجلة", item: selectedPrize.name, date: new Date().toLocaleTimeString() });
+                localStorage.setItem('admin_orders', JSON.stringify(adminOrders));
+
+                renderMyPrizes();
+            }, 4000);
+        }
+
+        // Referral System
+        function copyRefLink() {
+            const copyText = document.getElementById("refLink");
+            copyText.select();
+            document.execCommand("copy");
+            alert("تم نسخ رابط الإحالة! شاركه وستحصل على 50 نقطة عن كل مشترك.");
+            
+            // Simulating a referral reward
+            points += 50;
+            updateStats();
+        }
+
+        // Store Logic
+        function renderStore() {
+            const list = document.getElementById('storeItemsList');
+            list.innerHTML = '<h3>المنتجات المتاحة للاستبدال</h3>';
+            storeProducts.forEach(prod => {
+                list.innerHTML += `
+                    <div class="store-item">
+                        <div>
+                            <strong>${prod.name}</strong>
+                            <div style="font-size:0.75rem; color:#f39c12;">${prod.cost} نقطة</div>
+                        </div>
+                        <button class="btn-buy" onclick="buyProduct('${prod.name}', ${prod.cost})">استبدال</button>
+                    </div>
+                `;
+            });
+        }
+
+        function buyProduct(name, cost) {
+            if (points < cost) {
+                alert("نقاطك غير كافية!");
+                return;
+            }
+            points -= cost;
+            updateStats();
+            
+            userPrizes.push(`طلب متجر: ${name}`);
+            localStorage.setItem('my_prizes', JSON.stringify(userPrizes));
+
+            adminOrders.push({ type: "شراء متجر", item: name, date: new Date().toLocaleTimeString() });
+            localStorage.setItem('admin_orders', JSON.stringify(adminOrders));
+
+            alert("تم إرسال طلب الاستبدال إلى لوحة الإدارة بنجاح!");
+            renderMyPrizes();
+        }
+
+        function renderMyPrizes() {
+            const list = document.getElementById('myPrizesList');
+            if (userPrizes.length === 0) return;
+            list.innerHTML = '<h3>سجل جوائزك وطلباتك</h3>';
+            userPrizes.forEach(item => {
+                list.innerHTML += `<div class="prize-item"><span class="badge badge-legendary">مكتسب</span> ${item}</div>`;
+            });
+        }
+
+        // Admin Security & Controls
+        function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
+        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
+
+        function verifyAdmin() {
+            const pass = document.getElementById('adminPassInput').value;
+            if (pass === "6430087") {
+                closeAdminModal();
+                switchPage('admin', null);
+                renderAdminOrders();
+            } else {
+                alert("رمز الدخول غير صحيح!");
+            }
+        }
+
+        function addWheelPrize() {
+            const name = document.getElementById('newPrizeName').value;
+            const weight = parseInt(document.getElementById('newPrizeWeight').value);
+            if (!name || isNaN(weight)) return;
+
+            wheelPrizes.push({ name: name, weight: weight, color: "#" + Math.floor(Math.random()*16777215).toString(16) });
+            localStorage.setItem('wheel_prizes', JSON.stringify(wheelPrizes));
+            drawWheel();
+            alert("تمت إضافة الجائزة للعجلة!");
+        }
+
+        function addStoreProduct() {
+            const name = document.getElementById('newProdName').value;
+            const cost = parseInt(document.getElementById('newProdCost').value);
+            if (!name || isNaN(cost)) return;
+
+            storeProducts.push({ id: Date.now(), name: name, cost: cost });
+            localStorage.setItem('store_prods', JSON.stringify(storeProducts));
+            renderStore();
+            alert("تمت إضافة المنتج للمتجر!");
+        }
+
+        function renderAdminOrders() {
+            const list = document.getElementById('adminOrdersList');
+            if (adminOrders.length === 0) return;
+            list.innerHTML = '';
+            adminOrders.forEach((ord, i) => {
+                list.innerHTML += `
+                    <div class="prize-item">
+                        <div>[${ord.type}] ${ord.item} - <small>${ord.date}</small></div>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
