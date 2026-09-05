@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>متجر هيبه الرسمي | منصة الجوائز والحسابات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        
+        :root {
+            --bg-main: #06050e;
+            --card-bg: rgba(18, 14, 38, 0.85);
+            --neon-purple: #c084fc;
+            --neon-pink: #f43f5e;
+            --neon-cyan: #22d3ee;
+            --border-glow: rgba(192, 132, 252, 0.45);
+        }
+
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background: radial-gradient(circle at top, #1e113a 0%, #06050e 100%);
+            color: #f3f4f6; 
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        .cyber-gradient { background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #06b6d4 100%); }
+        .cyber-card { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border-glow); 
+            border-radius: 22px; 
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.18);
+        }
+
+        .profile-card { 
+            background: linear-gradient(145deg, rgba(35, 24, 68, 0.95) 0%, rgba(10, 8, 20, 0.98) 100%); 
+            border: 1px solid rgba(34, 211, 238, 0.5); 
+            border-radius: 24px; 
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.25); 
+        }
+
+        .glow-text {
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.8), 0 0 20px rgba(168, 85, 247, 0.6);
+        }
+
+        .wheel-container { position: relative; width: 290px; height: 290px; margin: 0 auto; }
+        .wheel { 
+            width: 100%; height: 100%; border-radius: 50%; 
+            border: 6px solid var(--neon-cyan); 
+            position: relative; overflow: hidden; 
+            transition: transform 5s cubic-bezier(0.15, 0.85, 0.15, 1); 
+            box-shadow: 0 0 35px rgba(34, 211, 238, 0.5); 
+        }
+        .wheel-pointer { 
+            position: absolute; top: -14px; left: 50%; transform: translateX(-50%); 
+            width: 0; height: 0; 
+            border-left: 12px solid transparent; border-right: 12px solid transparent; 
+            border-top: 24px solid var(--neon-cyan); 
+            z-index: 40; filter: drop-shadow(0 0 10px var(--neon-cyan)); 
+        }
+        .prize-slice { position: absolute; top: 0; left: 0; width: 100%; height: 100%; text-align: center; pointer-events: none; }
+        .prize-content { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 800; color: #fff; text-shadow: 0 1px 3px #000; width: 65px; display: flex; flex-direction: column; align-items: center; }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 18s linear infinite;
+        }
+
+        .prize-img {
+            width: 32px;
+            height: 32px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 0 0 8px rgba(34, 211, 238, 0.4);
+        }
+    </style>
+</head>
+<body class="pb-28">
+
+    <!-- الشريط العلوي الإعلاني -->
+    <div class="bg-gradient-to-r from-purple-900/90 via-pink-900/90 to-cyan-900/90 border-b border-cyan-400/40 text-cyan-200 text-[11px] font-extrabold py-1.5 overflow-hidden sticky top-0 z-50 shadow-lg">
+        <div class="animate-marquee flex items-center gap-6">
+            <span id="announcementText">🔥 مرحبا بكم في متجر هيبه الرسمي بأدارة الإدارة (@tnn40) | 🎁 اشترك بالقناة واجمع النقاط لتدوير عجلة الحظ يوميا</span>
+        </div>
+    </div>
+
+    <!-- الإشعار المنبثق -->
+    <div id="toast" class="fixed top-12 left-1/2 -translate-x-1/2 cyber-gradient text-black font-black px-6 py-3 rounded-2xl text-xs z-[100] opacity-0 pointer-events-none shadow-2xl transition-all duration-300">
+        تم بنجاح! ✨
+    </div>
+
+    <!-- الهيدر الرئيسي -->
+    <header class="flex justify-between items-center p-3 cyber-card m-3 sticky top-10 z-40 border border-purple-500/40">
+        <div class="flex items-center gap-2 cursor-pointer" ondblclick="triggerAdminAccess()" title="انقر مرتين لفتح لوحة الأدمن">
+            <div class="w-10 h-10 rounded-2xl cyber-gradient flex items-center justify-center font-black text-black text-xl shadow-lg shadow-purple-500/30">👑</div>
+            <div>
+                <h1 class="font-black text-xs text-cyan-300 glow-text">متجر هيبه الرسمي</h1>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <span class="bg-pink-950/90 border border-pink-400/50 text-pink-300 font-bold px-1.5 py-0.5 rounded-md text-[9px] flex items-center gap-1">
+                        📢 @tnn40
+                    </span>
+                    <span class="bg-purple-950/90 border border-cyan-400/50 text-cyan-300 font-bold px-1.5 py-0.5 rounded-md text-[9px] flex items-center gap-1">
+                        📸 4tn40
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-3 space-y-4 max-w-md mx-auto">
+        <!-- التبويب الأول: الرئيسية -->
+        <div id="tab-home" class="space-y-4">
+            <div class="cyber-card p-2 overflow-hidden text-center space-y-2 border border-pink-500/40">
+                <div class="relative w-full max-h-80 rounded-xl overflow-hidden border border-cyan-400/50 shadow-lg bg-black/60 flex items-center justify-center">
+                    <img id="contestBannerImg" src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60" alt="صورة المسابقة" class="w-full h-auto max-h-80 object-contain rounded-xl">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+                    <span class="absolute bottom-2 right-2 bg-black/80 border border-pink-500 text-pink-300 px-2.5 py-1 rounded-lg text-[10px] font-black z-10 shadow-md">🔥 مسابقة هيبه اليومية</span>
+                </div>
+            </div>
+
+            <div class="cyber-card p-5 text-center space-y-3">
+                <h3 class="font-bold text-sm text-cyan-300 glow-text">عجلة الحظ التفاعلية</h3>
+                <p class="text-[10px] text-gray-400">تدوير مرة واحدة كل 24 ساعة!</p>
+                
+                <div id="subChannelBox" class="bg-purple-950/50 border border-purple-500/50 p-3.5 rounded-2xl space-y-2">
+                    <p class="text-[11px] text-purple-200 font-bold">⚠️ شرط أساسي للتدوير:</p>
+                    <a href="https://t.me/HR409" target="_blank" onclick="markChannelClicked()" class="block bg-black/70 border border-cyan-400/50 text-cyan-300 p-2.5 rounded-xl text-xs font-bold hover:bg-black/90 transition shadow-inner">
+                        📢 اشترك في قناة المتجر الرسمية (HR409)
+                    </a>
+                    <button onclick="verifySubscription()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold py-2 rounded-xl text-xs transition shadow-lg">
+                        ✅ لقد اشتركت في القناة، تحقق الآن
+                    </button>
+                </div>
+
+                <div class="wheel-container my-4 opacity-40 pointer-events-none" id="wheelWrapper">
+                    <div class="wheel-pointer"></div>
+                    <div id="wheel" class="wheel"></div>
+                    <div class="absolute inset-[34%] rounded-full bg-[#06050e] border-2 border-cyan-400 flex items-center justify-center shadow-inner cursor-pointer z-30" onclick="spinWheel()">
+                        <span class="text-xs font-black text-cyan-300">أدر 🎡</span>
+                    </div>
+                </div>
+
+                <button onclick="spinWheel()" id="spinBtn" disabled class="w-full bg-gray-800 text-gray-500 font-bold py-3 rounded-2xl text-xs shadow-lg cursor-not-allowed border border-gray-700">أكمل اشتراكك لأجل التدوير</button>
+                <p id="timerText" class="text-[11px] text-rose-400 font-semibold mt-1"></p>
+
+                <div class="pt-3 border-t border-purple-900/50 space-y-3 text-right">
+                    <div class="flex justify-between items-center bg-purple-950/40 p-3 rounded-2xl border border-purple-500/30">
+                        <div>
+                            <span class="text-xs font-bold text-cyan-300 block">🎁 المكافأة اليومية المجانية</span>
+                            <span class="text-[9px] text-gray-400 block">احصل على 10 نقاط كل 24 ساعة</span>
+                        </div>
+                        <button onclick="claimDailyBonus()" id="dailyBtn" class="cyber-gradient text-black font-bold px-3 py-1.5 rounded-xl text-xs shadow-md">استلام 💎</button>
+                    </div>
+
+                    <div class="bg-black/40 p-3 rounded-2xl border border-purple-500/20 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-purple-300 flex items-center gap-1">⚡ آخر الفائزين بالعجلة مباشر</span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        </div>
+                        <div id="liveWinnersFeed" class="space-y-1.5 text-[10px] text-gray-300"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- التبويب الثاني: متجر الجوائز -->
+        <div id="tab-store" class="space-y-4 hidden">
+            <div class="cyber-card p-4 space-y-3">
+                <h3 class="font-bold text-sm text-cyan-400 border-b border-purple-900/50 pb-2 flex justify-between items-center">
+                    <span>🛒 متجر استبدال الجوائز</span>
+                    <span class="text-[10px] text-gray-400">رصيدك: <strong id="storePoints" class="text-cyan-400">0</strong> نقطة</span>
+                </h3>
+                <p class="text-[10px] text-gray-400">اختر الجائزة واستبدلها فوراً بنقاطك:</p>
+                <div id="storeItemsContainer" class="space-y-2 text-xs"></div>
+            </div>
+        </div>
+
+        <!-- التبويب الثالث: جوائزي -->
+        <div id="tab-prizes" class="space-y-4 hidden">
+            <div class="cyber-card p-4 space-y-3">
+                <h3 class="font-bold text-sm text-cyan-400 border-b border-purple-900/50 pb-2">🏆 جوائزي وحالة طلباتي الداخلية</h3>
+                <div id="myPrizesListContainer" class="space-y-2 text-xs">
+                    <p class="text-gray-400 text-xs text-center py-6">لا توجد جوائز بعد</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- التبويب الرابع: الإشعارات -->
+        <div id="tab-notifications" class="space-y-4 hidden">
+            <div class="cyber-card p-4 space-y-3">
+                <h3 class="font-bold text-sm text-cyan-400 border-b border-purple-900/50 pb-2">🔔 الإشعارات وسجل الانضمام</h3>
+                <div class="bg-purple-950/30 p-3 rounded-2xl border border-purple-500/30 space-y-2">
+                    <span class="font-bold text-purple-300 text-xs block">👥 سجل الأعضاء الجدد المنضمين للموقع:</span>
+                    <div id="notificationsUsersList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
+                        <p class="text-gray-400 text-center py-2 text-[11px]">جاري تحميل السجل...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- التبويب الخامس: الملف الشخصي -->
+        <div id="tab-profile" class="space-y-4 hidden">
+            <div id="adminQuickAccessBox">
+                <button onclick="triggerAdminAccess()" class="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-cyan-400 text-black font-black py-3 rounded-2xl text-xs shadow-xl flex items-center justify-center gap-2 border border-cyan-300 mb-2">
+                    <span>⚙️ لوحة تحكم الأدمن الحصرية</span>
+                </button>
+            </div>
+
+            <div class="profile-card p-5 space-y-4 text-center">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-cyan-400">حساب العضو</span>
+                    <button onclick="switchOrGuestAccount()" class="bg-rose-900/80 border border-rose-500/40 text-rose-200 px-2.5 py-1 rounded-xl text-[10px] font-bold">تغيير / خروج 🚪</button>
+                </div>
+                <div class="flex flex-col items-center space-y-2">
+                    <div class="w-20 h-20 rounded-full border-2 border-cyan-400 bg-black/60 flex items-center justify-center shadow-lg shadow-purple-500/20 overflow-hidden">
+                        <span class="text-3xl">👑</span>
+                    </div>
+                    <div>
+                        <h2 class="font-black text-base text-white" id="profileUsername">@User</h2>
+                        <span class="text-[10px] text-purple-300" id="userRoleBadge">عضو رسمي 💎</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 pt-2">
+                    <div class="cyber-card p-2 text-center bg-black/40">
+                        <span class="text-[10px] text-gray-400 block">النقاط</span>
+                        <span class="font-black text-cyan-400 text-sm" id="profilePointsVal">0</span>
+                    </div>
+                    <div class="cyber-card p-2 text-center bg-black/40">
+                        <span class="text-[10px] text-gray-400 block">الإحالات</span>
+                        <span class="font-black text-cyan-400 text-sm" id="profileRefsVal">0</span>
+                    </div>
+                    <div class="cyber-card p-2 text-center bg-black/40">
+                        <span class="text-[10px] text-gray-400 block">الجوائز</span>
+                        <span class="font-black text-cyan-400 text-sm" id="profilePrizesVal">0</span>
+                    </div>
+                </div>
+                <div class="space-y-2 text-right pt-2 border-t border-purple-900/50">
+                    <label class="text-[10px] text-purple-300 font-bold block">رابط الإحالة الخاص بك (كل إحالة = 50 نقطة):</label>
+                    <div class="flex gap-1">
+                        <input id="profileRefLink" type="text" readonly class="w-full bg-black/60 border border-purple-500/30 p-2 rounded-xl text-[10px] text-cyan-300 text-center outline-none" value="" />
+                        <button onclick="copyReferralLink()" class="cyber-gradient text-black font-bold px-3 py-1 rounded-xl text-[11px] whitespace-nowrap">نسخ</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cyber-card p-4 space-y-3">
+                <h3 class="font-bold text-sm text-cyan-400 border-b border-purple-900/50 pb-2">سجل النقاط والعمليات</h3>
+                <div id="profilePointsLog" class="text-xs text-gray-400 space-y-1">لا توجد عمليات بعد</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- شريط التنقل السفلي -->
+    <nav class="fixed bottom-0 left-0 right-0 cyber-card bg-[#0a0818]/95 border-t border-purple-500/40 flex justify-around py-3 text-[10px] z-50">
+        <button onclick="switchTab('home', this)" class="flex flex-col items-center text-cyan-400 transition nav-btn" data-tab="home"><span>🏠</span><span class="mt-0.5">الرئيسية</span></button>
+        <button onclick="switchTab('store', this)" class="flex flex-col items-center text-gray-400 hover:text-cyan-400 transition nav-btn" data-tab="store"><span>🛒</span><span class="mt-0.5">متجر الجوائز</span></button>
+        <button onclick="switchTab('prizes', this)" class="flex flex-col items-center text-gray-400 hover:text-cyan-400 transition nav-btn" data-tab="prizes"><span>🎁</span><span class="mt-0.5">جوائزي</span></button>
+        <button onclick="switchTab('notifications', this)" class="flex flex-col items-center text-gray-400 hover:text-cyan-400 transition nav-btn" data-tab="notifications"><span>🔔</span><span class="mt-0.5">الإشعارات</span></button>
+        <button onclick="switchTab('profile', this)" class="flex flex-col items-center text-gray-400 hover:text-gray-200 transition nav-btn" data-tab="profile"><span>👤</span><span class="mt-0.5">ملف اللاعب</span></button>
+    </nav>
+
+    <!-- مودال المطالبة للجائزة -->
+    <div id="claimModal" class="fixed inset-0 bg-black/85 hidden z-50 flex items-center justify-center p-4">
+        <div class="cyber-card w-full max-w-sm rounded-2xl p-5 space-y-4 text-center">
+            <h3 class="font-bold text-cyan-400 text-sm">🎉 مبروك! تم استبدال الجائزة بنجاح</h3>
+            <p id="claimPrizeNameText" class="text-xs text-purple-200 font-bold"></p>
+            <input id="userContactInput" type="text" readonly value="" class="w-full bg-black/60 border border-purple-500/30 p-2.5 rounded-xl text-cyan-300 text-xs text-center outline-none font-bold">
+            
+            <div class="text-right space-y-1">
+                <label class="text-[10px] text-gray-300 font-bold block">إضافة ملاحظة أو تفاصيل بالطلب (اختياري):</label>
+                <textarea id="userNoteInput" placeholder="أكتب ID حسابك، أو ملاحظة للادمن..." class="w-full bg-black/60 border border-purple-500/30 p-2.5 rounded-xl text-white text-xs outline-none h-16 resize-none"></textarea>
+            </div>
+
+            <div class="space-y-2 pt-1">
+                <button onclick="submitInternalClaim()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg">إرسال الطلب إلى الأدمن</button>
+                <button onclick="closeClaimModal()" class="w-full bg-gray-800 text-gray-300 font-bold py-2 rounded-xl text-xs">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- لوحة تحكم الأدمن -->
+    <div id="adminPanelModal" class="fixed inset-0 bg-black/95 hidden z-50 flex items-center justify-center p-4">
+        <div class="cyber-card w-full max-w-lg rounded-2xl p-4 space-y-4 text-xs max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-purple-900/50 pb-2">
+                <h3 class="font-bold text-cyan-400 text-sm">لوحة تحكم الأدمن ⚙️</h3>
+                <button onclick="closeAdminPanel()" class="text-gray-400 text-base font-bold">✕</button>
+            </div>
+
+            <div class="bg-purple-950/30 p-3 rounded-2xl border border-purple-500/40 space-y-2">
+                <h4 class="font-bold text-pink-300 text-xs">🖼️ اختر صورة المسابقة الرئيسية من جهازك:</h4>
+                <div class="flex gap-2 items-center">
+                    <input id="adminBannerFileInput" type="file" accept="image/*" class="w-full bg-black/50 border border-purple-500/30 p-2 rounded-xl text-white text-[11px] outline-none">
+                    <button onclick="saveBannerImage()" class="cyber-gradient text-black font-bold px-3 py-2 rounded-xl text-[11px] whitespace-nowrap">رفع وتحويل</button>
+                </div>
+            </div>
+
+            <div class="bg-purple-950/20 p-3 rounded-2xl border border-purple-500/30 space-y-2">
+                <h4 class="font-bold text-purple-300 text-sm">📢 تعديل شريط الإعلان المتحرك للأعضاء:</h4>
+                <div class="flex gap-2">
+                    <input id="adminAnnounceInput" type="text" placeholder="اكتب النص الإعلاني هنا..." class="w-full bg-black/50 border border-purple-500/30 p-2 rounded-xl text-white text-xs outline-none">
+                    <button onclick="saveAnnouncement()" class="cyber-gradient text-black font-bold px-4 rounded-xl text-xs whitespace-nowrap">تحديث</button>
+                </div>
+            </div>
+
+            <div class="bg-purple-950/20 p-3 rounded-2xl border border-purple-500/30 space-y-2">
+                <h4 class="font-bold text-purple-300 text-sm">🎡 تعديل جوائز العجلة والصور:</h4>
+                <div id="adminWheelEditor" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                <div class="space-y-1.5 pt-1">
+                    <div class="flex gap-1">
+                        <input id="newWheelName" type="text" placeholder="اسم الجائزة" class="w-1/2 bg-black/50 border border-purple-500/30 p-2 rounded-xl text-white text-xs outline-none">
+                        <input id="newWheelIcon" type="text" placeholder="أيقونة" class="w-1/4 bg-black/50 border border-purple-500/30 p-2 rounded-xl text-white text-xs outline-none text-center">
+                        <input id="newWheelWeight" type="number" placeholder="الوزن" value="10" class="w-1/4 bg-black/50 border border-purple-500/30 p-2 rounded-xl text-white text-xs outline-none text-center">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] text-gray-400 block">اختر صورة الجائزة من جهازك (اختياري):</label>
+                        <input id="newWheelImgFile" type="file" accept="image/*" class="w-full bg-black/50 border border-purple-500/30 p-2 rounded-xl text-white text-xs outline-none">
+                    </div>
+                    <button onclick="addNewWheelPrize()" class="w-full cyber-gradient text-black font-bold py-2 rounded-xl text-xs">إضافة جائزة للعجلة</button>
+                </div>
+            </div>
+
+            <div class="bg-purple-950/20 p-3 rounded-2xl border border-purple-500/30 space-y-2">
+                <h4 class="font-bold text-purple-300 text-sm">🛒 تعديل عناصر المتجر والصور:</h4>
+                <div id="adminStoreEditor" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                <div class="space-y-1.5 pt-1">
+                    <div class="flex gap-2">
+                        <input id="newStoreName" type="text" placeholder="اسم المنتج" class="w-2/3 bg-black/50 border border-purple-500/30 p-2 rounded-xl text-white text-xs outline-none">
+                        <input id="newStoreCost" type="number" placeholder="التكلفة" class="w-1/3 bg-black/50 border border-purple-500/30 p-2 rounded-xl text-white text-xs outline-none text-center">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] text-gray-400 block">اختر صورة المنتج من جهازك (اختياري):</label>
+                        <input id="newStoreImgFile" type="file" accept="image/*" class="w-full bg-black/50 border border-purple-500/30 p-2 rounded-xl text-white text-xs outline-none">
+                    </div>
+                    <button onclick="addNewStoreItem()" class="w-full cyber-gradient text-black font-bold py-2 rounded-xl text-xs">إضافة للمتجر</button>
+                </div>
+            </div>
+
+            <div class="bg-purple-950/20 p-3 rounded-2xl border border-purple-500/30 space-y-2">
+                <h4 class="font-bold text-purple-300 text-sm">👥 سجل المشتركين والطلبات:</h4>
+                <div id="adminUsersList" class="space-y-1 max-h-28 overflow-y-auto pr-1"></div>
+                <div id="adminRequestsList" class="space-y-1 max-h-36 overflow-y-auto pr-1"></div>
+            </div>
+
+            <button onclick="closeAdminPanel()" class="w-full cyber-gradient text-black font-bold py-3 rounded-2xl text-sm shadow-lg">حفظ وإغلاق اللوحة</button>
+        </div>
+    </div>
+
+    <!-- برمجة الجافاسكربت -->
+    <script>
+        const ADMIN_PIN = '6430087';
+        const CHANNEL_URL = 'https://t.me/HR409';
+        
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+                } else if (type === 'spinTick') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300 + Math.random() * 200, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.04);
+                } else if (type === 'win') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+                } else if (type === 'success') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+                }
+            } catch(e) {}
+        }
+
+        function getTelegramUserHandle() {
+            try {
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+                    let u = window.Telegram.WebApp.initDataUnsafe.user;
+                    if (u.username) return u.username;
+                    if (u.first_name) return u.first_name.replace(/\s+/g, '_');
+                    return 'user_' + u.id;
+                }
+            } catch(e) {}
+            
+            let saved = localStorage.getItem('hiba_active_session_user');
+            if (saved) return saved;
+            
+            let newUser = 'user_' + Math.floor(1000 + Math.random() * 9000);
+            localStorage.setItem('hiba_active_session_user', newUser);
+            return newUser;
+        }
+
+        let CURRENT_USER = getTelegramUserHandle();
+
+        function switchOrGuestAccount() {
+            playSound('click');
+            let action = prompt("اختر إجراءً:\n1. تغيير اليوزر (أدخل يوزرك الجديد بدون @)\n2. الدخول كـ (ضيف)");
+            if(action === null) return;
+            
+            action = action.trim();
+            if (action === "2" || action.toLowerCase() === "ضيف" || action.toLowerCase() === "guest") {
+                CURRENT_USER = 'Guest_' + Math.floor(100 + Math.random() * 900);
+                localStorage.setItem('hiba_active_session_user', CURRENT_USER);
+                showToast("تم الدخول كـ زائر ضيف! 👤");
+            } else if (action !== "") {
+                let cleanUser = action.replace('@', '').trim();
+                if(cleanUser.length > 0) {
+                    CURRENT_USER = cleanUser;
+                    localStorage.setItem('hiba_active_session_user', CURRENT_USER);
+                    showToast(`أهلاً بك @${CURRENT_USER}! ✨`);
+                }
+            }
+            initData();
+            checkUserState();
+        }
+
+        let defaultStoreItems = [
+            { id: 1, name: "حساب إنستغرام متفاعل", cost: 300, stock: 15, img: "https://cdn-icons-png.flaticon.com/512/174/174855.png" },
+            { id: 2, name: "حساب تيك توك موثق", cost: 600, stock: 5, img: "https://cdn-icons-png.flaticon.com/512/3046/3046121.png" },
+            { id: 3, name: "حساب ببجي لفل 70", cost: 1000, stock: 3, img: "https://cdn-icons-png.flaticon.com/512/808/808439.png" },
+            { id: 4, name: "هدية نقاط المتجر (50 نقطة)", cost: 100, stock: 20, img: "https://cdn-icons-png.flaticon.com/512/1828/1828884.png" }
+        ];
+
+        let defaultPrizes = [
+            { name: "مبلغ 100$", icon: "💵", weight: 0, img: "" },
+            { name: "1000 شده ببجي", icon: "💎", weight: 0, img: "" }, 
+            { name: "100 نقطة", icon: "💯", weight: 20, img: "" },
+            { name: "حساب تيك توك", icon: "🎵", weight: 10, img: "https://cdn-icons-png.flaticon.com/512/3046/3046121.png" },
+            { name: "كارت سياره", icon: "🚗", weight: 0, img: "" },   
+            { name: "حساب ببجي", icon: "🔥", weight: 5, img: "https://cdn-icons-png.flaticon.com/512/808/808439.png" },
+            { name: "رويال باس", icon: "👑", weight: 0, img: "" },   
+            { name: "حساب انستا", icon: "📸", weight: 10, img: "https://cdn-icons-png.flaticon.com/512/174/174855.png" },
+            { name: "كارت آسيا", icon: "💳", weight: 15, img: "" }
+        ];
+
+        function loadBannerImage() {
+            let savedBanner = localStorage.getItem('hiba_contest_banner_img');
+            let defaultBanner = 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60';
+            let imgUrl = savedBanner ? savedBanner : defaultBanner;
+            let el = document.getElementById('contestBannerImg');
+            if(el) el.src = imgUrl;
+        }
+
+        function saveBannerImage() {
+            playSound('click');
+            let fileInput = document.getElementById('adminBannerFileInput');
+            let file = fileInput.files[0];
+            
+            if(!file) { alert("يرجى اختيار صورة من جهازك أولاً!"); return; }
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let base64Image = e.target.result;
+                localStorage.setItem('hiba_contest_banner_img', base64Image);
+                loadBannerImage();
+                playSound('success');
+                showToast("تم رفع وتحويل صورة المسابقة بنجاح! 🖼️");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadAnnouncement() {
+            let savedAnnounce = localStorage.getItem('hiba_global_announcement');
+            let defaultMsg = '🔥 مرحبا بكم في متجر هيبه الرسمي بأدارة الإدارة (@tnn40) | 🎁 اشترك بالقناة واجمع النقاط لتدوير عجلة الحظ يوميا';
+            let textToDisplay = savedAnnounce ? savedAnnounce : defaultMsg;
+            let el = document.getElementById('announcementText');
+            if(el) el.innerText = textToDisplay;
+            let inputEl = document.getElementById('adminAnnounceInput');
+            if(inputEl) inputEl.value = textToDisplay;
+        }
+
+        function saveAnnouncement() {
+            playSound('click');
+            let inputEl = document.getElementById('adminAnnounceInput');
+            let val = inputEl.value.trim();
+            if(!val) { alert("يرجى كتابة نص الإعلان أولاً!"); return; }
+            localStorage.setItem('hiba_global_announcement', val);
+            loadAnnouncement();
+            playSound('success');
+            showToast("تم تحديث الإعلان للأعضاء بنجاح! 📢");
+        }
+
+        function getStoreItems() {
+            let saved = localStorage.getItem('hiba_store_items');
+            return saved ? JSON.parse(saved) : defaultStoreItems;
+        }
+
+        function getPrizes() {
+            let saved = localStorage.getItem('hiba_wheel_prizes');
+            return saved ? JSON.parse(saved) : defaultPrizes;
+        }
+
+        function getAllRequests() {
+            let saved = localStorage.getItem('hiba_admin_requests');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        function getRegisteredUsers() {
+            let saved = localStorage.getItem('hiba_registered_users');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        function registerUserToList(username) {
+            let users = getRegisteredUsers();
+            if(!users.includes(username)) {
+                users.push(username);
+                localStorage.setItem('hiba_registered_users', JSON.stringify(users));
+            }
+            renderNotifications();
+        }
+
+        let pendingCurrentPrizeName = "";
+
+        function showToast(msg = "تم بنجاح! ✨") {
+            let toast = document.getElementById('toast');
+            if(!toast) return;
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2500);
+        }
+
+        function processReferrals() {
+            let urlParams = new URLSearchParams(window.location.search);
+            let refUser = urlParams.get('start');
+            if (refUser && refUser.startsWith('ref_')) {
+                let referrer = refUser.replace('ref_', '');
+                let processedKey = CURRENT_USER + '_referred_by_' + referrer;
+                if (referrer !== CURRENT_USER && !localStorage.getItem(processedKey)) {
+                    localStorage.setItem(processedKey, 'true');
+                    
+                    let refPoints = parseInt(localStorage.getItem(referrer + '_hiba_points') || '100');
+                    let refCount = parseInt(localStorage.getItem(referrer + '_hiba_refs') || '0');
+                    
+                    localStorage.setItem(referrer + '_hiba_points', (refPoints + 50).toString());
+                    localStorage.setItem(referrer + '_hiba_refs', (refCount + 1).toString());
+                    
+                    let refLogs = JSON.parse(localStorage.getItem(referrer + '_hiba_logs') || '[]');
+                    refLogs.unshift(`🎉 مكافأة إحالة جديدة (@${CURRENT_USER}): +50 نقطة`);
+                    localStorage.setItem(referrer + '_hiba_logs', JSON.stringify(refLogs));
+                }
+            }
+        }
+
+        function initData() {
+            try {
+                if(window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.expand();
+                }
+            } catch(e) {}
+
+            processReferrals();
+            registerUserToList(CURRENT_USER);
+
+            if(!localStorage.getItem(CURRENT_USER + '_hiba_points')) {
+                localStorage.setItem(CURRENT_USER + '_hiba_points', '100');
+                localStorage.setItem(CURRENT_USER + '_hiba_refs', '0');
+                localStorage.setItem(CURRENT_USER + '_hiba_logs', JSON.stringify(['➕ هدية التسجيل الأول: +100 نقطة']));
+            }
+
+            let isGuest = CURRENT_USER.startsWith('Guest_');
+            document.getElementById('profileUsername').innerText = '@' + CURRENT_USER;
+            document.getElementById('userRoleBadge').innerText = isGuest ? 'زائر ضيف 👤' : 'عضو رسمي 💎';
+            document.getElementById('userContactInput').value = '@' + CURRENT_USER;
+            
+            document.getElementById('profileRefLink').value = `https://t.me/HR409?start=ref_${CURRENT_USER}`;
+            
+            loadAnnouncement();
+            loadBannerImage();
+        }
+
+        function trackVisitors() {
+            let totalVisits = parseInt(localStorage.getItem('hiba_total_visitors') || '1520');
+            if (!sessionStorage.getItem('hiba_counted_session')) {
+                totalVisits += 1;
+                localStorage.setItem('hiba_total_visitors', totalVisits);
+                sessionStorage.setItem('hiba_counted_session', 'true');
+            }
+        }
+
+        function renderWheel() {
+            let prizes = getPrizes();
+            let wheel = document.getElementById('wheel');
+            if(!wheel) return;
+            wheel.innerHTML = '';
+            
+            if (prizes.length === 0) {
+                wheel.style.background = '#0d091e';
+                return;
+            }
+
+            let angleStep = 360 / prizes.length;
+            let conicGradients = [];
+            
+            prizes.forEach((p, index) => {
+                let startAngle = index * angleStep;
+                let endAngle = (index + 1) * angleStep;
+                let bgColor = index % 2 === 0 ? '#110c28' : '#221545';
+                conicGradients.push(`${bgColor} ${startAngle}deg ${endAngle}deg`);
+
+                let slice = document.createElement('div');
+                slice.className = 'prize-slice';
+                slice.style.transform = `rotate(${startAngle + (angleStep / 2)}deg)`;
+                
+                let content = document.createElement('div');
+                content.className = 'prize-content';
+                
+                let imgTag = p.img ? `<img src="${p.img}" class="w-4 h-4 rounded-full border border-cyan-300 my-0.5 object-cover">` : '';
+                content.innerHTML = `<span class="text-xs">${p.icon || '🎁'}</span>${imgTag}<span class="text-[8px] leading-tight">${p.name}</span>`;
+                
+                slice.appendChild(content);
+                wheel.appendChild(slice);
+            });
+            wheel.style.background = `conic-gradient(${conicGradients.join(', ')})`;
+        }
+
+        function switchTab(tabId, btnElement) {
+            playSound('click');
+            ['home', 'store', 'prizes', 'notifications', 'profile'].forEach(t => {
+                let tabEl = document.getElementById('tab-' + t);
+                if(tabEl) tabEl.classList.add('hidden');
+            });
+            let targetTab = document.getElementById('tab-' + tabId);
+            if(targetTab) targetTab.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('text-cyan-400');
+                b.classList.add('text-gray-400');
+            });
+            if(btnElement) {
+                btnElement.classList.remove('text-gray-400');
+                btnElement.classList.add('text-cyan-400');
+            }
+            if(tabId === 'prizes') renderMyPrizes();
+        }
+
+        function renderLiveWinners() {
+            let feed = document.getElementById('liveWinnersFeed');
+            if(!feed) return;
+            
+            let simulatedWinners = [
+                { user: 'user_4891', prize: '100 نقطة 💯', time: 'قبل 4 دقائق' },
+                { user: 'user_9012', prize: 'حساب تيك توك 🎵', time: 'قبل 15 دقيقة' },
+                { user: 'user_1104', prize: 'كارت آسيا 💳', time: 'قبل 32 دقيقة' }
+            ];
+
+            feed.innerHTML = simulatedWinners.map(w => `
+                <div class="flex justify-between items-center border-b border-purple-900/30 pb-1">
+                    <span class="text-cyan-400 font-bold">@${w.user}</span>
+                    <span class="text-purple-200">${w.prize}</span>
+                    <span class="text-[8px] text-gray-500">${w.time}</span>
+                </div>
+            `).join('');
+        }
+
+        function claimDailyBonus() {
+            playSound('click');
+            let lastClaim = localStorage.getItem(CURRENT_USER + '_hiba_daily_bonus');
+            let now = new Date().getTime();
+            if (lastClaim && (now - parseInt(lastClaim) < 24 * 60 * 60 * 1000)) {
+                alert("⚠️ لقد استلمت المكافأة اليومية بالفعل، عُد غداً!");
+                return;
+            }
+            localStorage.setItem(CURRENT_USER + '_hiba_daily_bonus', now.toString());
+            let currentPts = parseInt(localStorage.getItem(CURRENT_USER + '_hiba_points') || '0');
+            localStorage.setItem(CURRENT_USER + '_hiba_points', (currentPts + 10).toString());
+            
+            let logs = JSON.parse(localStorage.getItem(CURRENT_USER + '_hiba_logs') || '[]');
+            logs.unshift(`🎁 المكافأة اليومية: +10 نقاط`);
+            localStorage.setItem(CURRENT_USER + '_hiba_logs', JSON.stringify(logs));
+
+            checkUserState();
+            playSound('success');
+            showToast("تمت إضافة +10 نقاط لرصيدك بنجاح! 🎁");
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initData();
+            if(!localStorage.getItem('hiba_wheel_prizes')) {
+                localStorage.setItem('hiba_wheel_prizes', JSON.stringify(defaultPrizes));
+            }
+            if(!localStorage.getItem('hiba_store_items')) {
+                localStorage.setItem('hiba_store_items', JSON.stringify(defaultStoreItems));
+            }
+            trackVisitors();
+            renderWheel();
+            renderStore();
+            checkUserState();
+            renderNotifications();
+            renderLiveWinners();
+        });
+
+        function checkUserState() {
+            let points = localStorage.getItem(CURRENT_USER + '_hiba_points') || '100';
+            let refs = localStorage.getItem(CURRENT_USER + '_hiba_refs') || '0';
+            
+            document.getElementById('profilePointsVal').innerText = points;
+            document.getElementById('profileRefsVal').innerText = refs;
+            document.getElementById('storePoints').innerText = points;
+
+            let myPrizes = JSON.parse(localStorage.getItem(CURRENT_USER + '_hiba_my_prizes') || '[]');
+            document.getElementById('profilePrizesVal').innerText = myPrizes.length;
+
+            renderUserLogs();
+
+            if(localStorage.getItem(CURRENT_USER + '_hiba_subscribed') === 'true') {
+                unlockWheelSystem();
+            } else {
+                lockWheelSystem();
+            }
+        }
+
+        function lockWheelSystem() {
+            let box = document.getElementById('subChannelBox');
+            if(box) box.innerHTML = `
+                <p class="text-[11px] text-purple-200 font-bold">⚠️ شرط أساسي للتدوير:</p>
+                <a href="${CHANNEL_URL}" target="_blank" onclick="markChannelClicked()" class="block bg-black/60 border border-cyan-500/40 text-cyan-300 p-2.5 rounded-xl text-xs font-bold hover:bg-black/80 transition">
+                    📢 اشترك في قناة المتجر الرسمية (HR409)
+                </a>
+                <button onclick="verifySubscription()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold py-2 rounded-xl text-xs transition shadow-lg">
+                    ✅ لقد اشتركت في القناة، تحقق الآن
+                </button>
+            `;
+            let wrapper = document.getElementById('wheelWrapper');
+            if(wrapper) wrapper.classList.add('opacity-40', 'pointer-events-none');
+            let spinBtn = document.getElementById('spinBtn');
+            if(spinBtn) {
+                spinBtn.disabled = true;
+                spinBtn.className = 'w-full bg-gray-800 text-gray-500 font-bold py-3 rounded-2xl text-xs shadow-lg cursor-not-allowed border border-gray-700';
+                spinBtn.innerText = 'أكمل اشتراكك لأجل التدوير';
+            }
+        }
+
+        function unlockWheelSystem() {
+            let box = document.getElementById('subChannelBox');
+            if(box) box.innerHTML = '<p class="text-[11px] text-emerald-400 font-bold text-center">✅ أنت مشترك في القناة وعجلة الحظ جاهزة!</p>';
+            let wrapper = document.getElementById('wheelWrapper');
+            if(wrapper) wrapper.classList.remove('opacity-40', 'pointer-events-none');
+            checkTimer();
+        }
+
+        function markChannelClicked() {
+            playSound('click');
+            localStorage.setItem(CURRENT_USER + '_hiba_visited_channel', 'true');
+        }
+
+        function verifySubscription() {
+            playSound('click');
+            let hasVisited = localStorage.getItem(CURRENT_USER + '_hiba_visited_channel') === 'true';
+            if(!hasVisited) {
+                alert("⚠️ يرجى الضغط على زر (اشترك في قناة المتجر الرسمية) وزيارة القناة أولاً!");
+                return;
+            }
+            localStorage.setItem(CURRENT_USER + '_hiba_subscribed', 'true');
+            unlockWheelSystem();
+            playSound('success');
+            showToast("تم التحقق من اشتراكك بنجاح! ✅");
+        }
+
+        function renderStore() {
+            let items = getStoreItems();
+            let container = document.getElementById('storeItemsContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            items.forEach(item => {
+                let isOut = item.stock <= 0;
+                let row = document.createElement('div');
+                row.className = "flex justify-between items-center bg-black/40 p-3 rounded-2xl border border-purple-500/20";
+                
+                let imgHTML = item.img ? `<img src="${item.img}" class="prize-img" alt="${item.name}">` : `<div class="w-8 h-8 rounded-lg bg-purple-900/50 flex items-center justify-center font-bold text-cyan-300">🎁</div>`;
+
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        ${imgHTML}
+                        <div>
+                            <span class="font-bold text-purple-200 block text-xs">${item.name}</span>
+                            <span class="text-[10px] text-gray-400">التكلفة: ${item.cost} نقطة | المتبقي: <strong class="text-cyan-400">${item.stock}</strong></span>
+                        </div>
+                    </div>
+                    <button onclick="buyStoreItem(${item.id})" ${isOut ? 'disabled' : ''} class="${isOut ? 'bg-gray-800 text-gray-500 cursor-not-allowed' : 'cyber-gradient text-black font-bold'} px-3 py-1.5 rounded-xl text-[11px]">
+                        ${isOut ? 'نفدت' : 'استبدال'}
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function buyStoreItem(id) {
+            playSound('click');
+            let items = getStoreItems();
+            let item = items.find(i => i.id === id);
+            if(!item || item.stock <= 0) return;
+            let points = parseInt(localStorage.getItem(CURRENT_USER + '_hiba_points') || '0');
+            if(points < item.cost) { alert("نقاطك لا تكفي لاستبدال هذا الجائزة!"); return; }
+
+            points -= item.cost;
+            item.stock -= 1;
+            localStorage.setItem('hiba_store_items', JSON.stringify(items));
+            localStorage.setItem(CURRENT_USER + '_hiba_points', points.toString());
+            
+            let logs = JSON.parse(localStorage.getItem(CURRENT_USER + '_hiba_logs') || '[]');
+            logs.unshift(`🛒 استبدال من المتجر: (${item.name}) - الخصم: ${item.cost} نقطة`);
+            localStorage.setItem(CURRENT_USER + '_hiba_logs', JSON.stringify(logs));
+
+            pendingCurrentPrizeName = item.name;
+            renderStore();
+            checkUserState();
+            playSound('success');
+            openClaimModal(item.name);
+        }
+
+        function openClaimModal(prizeName) {
+            document.getElementById('claimPrizeNameText').innerText = `الجائزة: ${prizeName}`;
+            document.getElementById('userNoteInput').value = '';
+            document.getElementById('claimModal').classList.remove('hidden');
+        }
+
+        function closeClaimModal() { 
+            playSound('click');
+            document.getElementById('claimModal').classList.add('hidden'); 
+        }
+
+        function submitInternalClaim() {
+            playSound('click');
+            let noteVal = document.getElementById('userNoteInput').value.trim() || 'بدون ملاحظة';
+            
+            let requests = getAllRequests();
+            requests.unshift({ 
+                user: CURRENT_USER, 
+                prize: pendingCurrentPrizeName, 
+                note: noteVal,
+                contact: '@' + CURRENT_USER, 
+                status: "قيد المراجعة ⏳", 
+                date: new Date().toLocaleDateString('ar-IQ') 
+            });
+            localStorage.setItem('hiba_admin_requests', JSON.stringify(requests));
+            
+            let myPrizes = JSON.parse(localStorage.getItem(CURRENT_USER + '_hiba_my_prizes') || '[]');
+            myPrizes.unshift({ 
+                prize: pendingCurrentPrizeName, 
+                note: noteVal,
+                status: "قيد المراجعة ⏳", 
+                date: new Date().toLocaleDateString('ar-IQ') 
+            });
+            localStorage.setItem(CURRENT_USER + '_hiba_my_prizes', JSON.stringify(myPrizes));
+
+            closeClaimModal();
+            checkUserState();
+            playSound('success');
+            showToast("تم إرسال الطلب والملاحظة للأدمن بنجاح! 📥");
+        }
+
+        function renderMyPrizes() {
+            let container = document.getElementById('myPrizesListContainer');
+            let myPrizes = JSON.parse(localStorage.getItem(CURRENT_USER + '_hiba_my_prizes') || '[]');
+            if(!container) return;
+            if(myPrizes.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 text-xs text-center py-6">لا توجد جوائز بعد</p>`;
+                return;
+            }
+            container.innerHTML = myPrizes.map(p => `
+                <div class="bg-black/40 p-3 rounded-2xl border border-purple-500/20 space-y-1">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-cyan-300">🎁 ${p.prize}</span>
+                        <span class="text-xs font-bold text-amber-400">${p.status}</span>
+                    </div>
+                    ${p.note && p.note !== 'بدون ملاحظة' ? `<p class="text-[10px] text-gray-300 bg-purple-950/40 p-1.5 rounded-lg border border-purple-500/20">📝 ملاحظتك: ${p.note}</p>` : ''}
+                    <span class="text-[9px] text-gray-400 block text-left">التاريخ: ${p.date}</span>
+                </div>
+            `).join('');
+        }
+
+        function triggerAdminAccess() {
+            playSound('click');
+            let inputPin = prompt("🔑 أدخل رمز الحماية للوحة الأدمن:");
+            if(inputPin === ADMIN_PIN) {
+                playSound('success');
+                loadAdminData();
+                document.getElementById('adminPanelModal').classList.remove('hidden');
+            } else if(inputPin !== null) {
+                alert("❌ رمز الحماية غير صحيح!");
+            }
+        }
+
+        function closeAdminPanel() { 
+            playSound('click');
+            document.getElementById('adminPanelModal').classList.add('hidden');
+            renderWheel();
+            renderStore();
+        }
+
+        function loadAdminData() {
+            loadAnnouncement();
+            loadBannerImage();
+
+            let wheelEditor = document.getElementById('adminWheelEditor');
+            let prizes = getPrizes();
+            wheelEditor.innerHTML = prizes.map((p, idx) => `
+                <div class="flex items-center justify-between bg-black/50 p-2 rounded-xl border border-purple-500/20">
+                    <div class="flex items-center gap-2">
+                        ${p.img ? `<img src="${p.img}" class="w-6 h-6 rounded object-cover">` : ''}
+                        <span class="text-purple-200 text-xs">${p.icon} ${p.name} <span class="text-cyan-400">(الوزن: ${p.weight ?? 0})</span></span>
+                    </div>
+                    <button onclick="deleteWheelPrize(${idx})" class="bg-rose-600/80 hover:bg-rose-600 text-white px-2 py-1 rounded-lg text-[10px]">حذف القسم</button>
+                </div>
+            `).join('') || 'لا توجد أقسام';
+
+            let storeEditor = document.getElementById('adminStoreEditor');
+            let storeItems = getStoreItems();
+            storeEditor.innerHTML = storeItems.map(item => `
+                <div class="flex items-center justify-between bg-black/50 p-2 rounded-xl border border-purple-500/20">
+                    <div class="flex items-center gap-2">
+                        ${item.img ? `<img src="${item.img}" class="w-6 h-6 rounded object-cover">` : ''}
+                        <span class="text-purple-200 text-xs">${item.name} (${item.cost} نقطة)</span>
+                    </div>
+                    <button onclick="deleteStoreItem(${item.id})" class="bg-rose-600/80 hover:bg-rose-600 text-white px-2 py-1 rounded-lg text-[10px]">حذف</button>
+                </div>
+            `).join('') || 'لا توجد منتجات';
+
+            let usersContainer = document.getElementById('adminUsersList');
+            let users = getRegisteredUsers();
+            usersContainer.innerHTML = `<span class="text-cyan-300 font-bold block">المشتركين (${users.length}):</span>` + users.map(u => `<span class="text-gray-300 text-[11px] block">@${u}</span>`).join('');
+            
+            let reqContainer = document.getElementById('adminRequestsList');
+            let requests = getAllRequests();
+            reqContainer.innerHTML = `<span class="text-cyan-300 font-bold block mb-1">الطلبات والملاحظات (${requests.length}):</span>` + requests.map(r => `
+                <div class="bg-black/60 p-2 rounded-xl border border-purple-500/30 mb-1.5 space-y-0.5">
+                    <div class="flex justify-between items-center text-cyan-300 font-bold">
+                        <span>👤 @${r.user}</span>
+                        <span class="text-purple-300 text-[10px]">${r.prize}</span>
+                    </div>
+                    ${r.note ? `<p class="text-[10px] text-amber-300 bg-black/40 p-1 rounded border border-amber-500/20">📝 ملاحظة العضو: ${r.note}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function addNewWheelPrize() {
+            playSound('click');
+            let nameInput = document.getElementById('newWheelName');
+            let iconInput = document.getElementById('newWheelIcon');
+            let weightInput = document.getElementById('newWheelWeight');
+            let fileInput = document.getElementById('newWheelImgFile');
+            
+            let name = nameInput.value.trim();
+            let icon = iconInput.value.trim() || '🎁';
+            let weight = parseInt(weightInput.value);
+            
+            if(isNaN(weight)) weight = 0;
+            if(!name) { alert("أدخل اسم الجائزة"); return; }
+
+            let prizes = getPrizes();
+
+            let savePrizeData = (imgData = '') => {
+                prizes.push({ name: name, icon: icon, weight: weight, img: imgData });
+                localStorage.setItem('hiba_wheel_prizes', JSON.stringify(prizes));
+                nameInput.value = '';
+                iconInput.value = '';
+                fileInput.value = '';
+                weightInput.value = '10';
+                loadAdminData();
+                showToast("تمت إضافة الجائزة للعجلة بنجاح! 🎡");
+            };
+
+            if(fileInput.files && fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    savePrizeData(e.target.result);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                savePrizeData('');
+            }
+        }
+
+        function deleteWheelPrize(index) {
+            playSound('click');
+            let prizes = getPrizes();
+            if(prizes.length <= 1) { alert("يجب أن تبقى جائزة واحدة على الأقل في العجلة!"); return; }
+            prizes.splice(index, 1);
+            localStorage.setItem('hiba_wheel_prizes', JSON.stringify(prizes));
+            loadAdminData();
+            showToast("تم حذف القسم من العجلة! 🗑️");
+        }
+
+        function addNewStoreItem() {
+            playSound('click');
+            let nameInput = document.getElementById('newStoreName');
+            let costInput = document.getElementById('newStoreCost');
+            let fileInput = document.getElementById('newStoreImgFile');
+            
+            let name = nameInput.value.trim();
+            let cost = parseInt(costInput.value);
+            
+            if(!name || isNaN(cost)) { alert("أدخل اسم المنتج وتكلفته الصحيحة"); return; }
+
+            let items = getStoreItems();
+            let newId = items.length > 0 ? items[items.length - 1].id + 1 : 1;
+
+            let saveStoreData = (imgData = '') => {
+                items.push({ id: newId, name: name, cost: cost, stock: 10, img: imgData });
+                localStorage.setItem('hiba_store_items', JSON.stringify(items));
+                nameInput.value = '';
+                costInput.value = '';
+                fileInput.value = '';
+                loadAdminData();
+                renderStore();
+                showToast("تمت إضافة المنتج للمتجر بنجاح! 🛒");
+            };
+
+            if(fileInput.files && fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    saveStoreData(e.target.result);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveStoreData('');
+            }
+        }
+
+        function deleteStoreItem(id) {
+            playSound('click');
+            let items = getStoreItems();
+            items = items.filter(i => i.id !== id);
+            localStorage.setItem('hiba_store_items', JSON.stringify(items));
+            loadAdminData();
+            renderStore();
+            showToast("تم حذف المنتج من المتجر! 🗑️");
+        }
+
+        function renderNotifications() {
+            let usersContainer = document.getElementById('notificationsUsersList');
+            if(usersContainer) {
+                let users = getRegisteredUsers();
+                usersContainer.innerHTML = users.slice().reverse().map(u => `
+                    <div class="flex justify-between items-center bg-black/50 p-2 rounded-xl border border-purple-500/20">
+                        <span class="text-purple-200 font-bold truncate">👤 انضم إلينا: @${u}</span>
+                        <span class="text-[9px] text-emerald-400 font-bold">نشط ✅</span>
+                    </div>
+                `).join('') || 'لا توجد تسجيلات';
+            }
+        }
+
+        function renderUserLogs() {
+            let logs = JSON.parse(localStorage.getItem(CURRENT_USER + '_hiba_logs') || '[]');
+            let logsEl = document.getElementById('profilePointsLog');
+            if(logsEl) {
+                logsEl.innerHTML = logs.map(l => `<div class="bg-black/40 p-2 rounded-xl border border-purple-500/20 text-gray-300">${l}</div>`).join('');
+            }
+        }
+
+        function copyReferralLink() {
+            playSound('click');
+            let copyText = document.getElementById('profileRefLink');
+            copyText.select();
+            navigator.clipboard.writeText(copyText.value);
+            playSound('success');
+            showToast("تم نسخ رابط الإحالة! 📋");
+        }
+
+        function checkTimer() {
+            let lastSpin = localStorage.getItem(CURRENT_USER + '_hiba_last_spin');
+            let spinBtn = document.getElementById('spinBtn');
+            let timerText = document.getElementById('timerText');
+            if(!spinBtn || !timerText) return;
+
+            if(!lastSpin) {
+                spinBtn.disabled = false;
+                spinBtn.className = 'cyber-gradient text-black font-bold py-3 rounded-2xl text-xs shadow-lg cursor-pointer';
+                spinBtn.innerText = 'أدر العجلة الآن 🎡';
+                timerText.innerText = '';
+                return;
+            }
+
+            let diff = new Date().getTime() - parseInt(lastSpin);
+            let cooldown = 24 * 60 * 60 * 1000;
+
+            if(diff < cooldown) {
+                let remaining = cooldown - diff;
+                let hours = Math.floor(remaining / (1000 * 60 * 60));
+                let minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                let seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+                spinBtn.disabled = true;
+                spinBtn.className = 'w-full bg-gray-800 text-gray-500 font-bold py-3 rounded-2xl text-xs cursor-not-allowed border border-gray-700';
+                spinBtn.innerText = 'العجلة مقفولة مؤقتاً';
+                timerText.innerText = `⏳ متبقي للتدوير القادم: ${hours}س ${minutes}د ${seconds}ث`;
+
+                setTimeout(checkTimer, 1000);
+            } else {
+                spinBtn.disabled = false;
+                spinBtn.className = 'cyber-gradient text-black font-bold py-3 rounded-2xl text-xs shadow-lg cursor-pointer';
+                spinBtn.innerText = 'أدر العجلة الآن 🎡';
+                timerText.innerText = '';
+            }
+        }
+
+        let isSpinning = false;
+
+        function spinWheel() {
+            if(isSpinning) return;
+            
+            let lastSpin = localStorage.getItem(CURRENT_USER + '_hiba_last_spin');
+            if(lastSpin) {
+                let diff = new Date().getTime() - parseInt(lastSpin);
+                if(diff < 24 * 60 * 60 * 1000) {
+                    alert("عذراً، يمكنك تدوير العجلة مرة واحدة فقط كل 24 ساعة!");
+                    checkTimer();
+                    return;
+                }
+            }
+
+            let allPrizes = getPrizes();
+            let validPrizes = allPrizes.filter(p => (Number(p.weight) || 0) > 0);
+            
+            if(validPrizes.length === 0) {
+                alert("لا توجد جوائز ذات احتمالية ربح المتاحة حالياً!");
+                return;
+            }
+
+            isSpinning = true;
+            playSound('click');
+            let wheel = document.getElementById('wheel');
+
+            let soundInterval = setInterval(() => {
+                if(isSpinning) playSound('spinTick');
+            }, 180);
+
+            let totalWeight = validPrizes.reduce((sum, p) => sum + Number(p.weight), 0);
+            let randomNum = Math.random() * totalWeight;
+            let currentSum = 0;
+            let selectedPrize = validPrizes[0];
+            
+            for (let i = 0; i < validPrizes.length; i++) {
+                currentSum += Number(validPrizes[i].weight);
+                if (randomNum <= currentSum) {
+                    selectedPrize = validPrizes[i];
+                    break;
+                }
+            }
+
+            let winningIndexInFullList = allPrizes.findIndex(p => p.name === selectedPrize.name && p.icon === selectedPrize.icon);
+
+            let angleStep = 360 / allPrizes.length;
+            let targetAngle = 360 - (winningIndexInFullList * angleStep) - (angleStep / 2);
+            wheel.style.transform = `rotate(${360 * 8 + targetAngle}deg)`;
+
+            setTimeout(() => {
+                clearInterval(soundInterval);
+                isSpinning = false;
+                playSound('win');
+                localStorage.setItem(CURRENT_USER + '_hiba_last_spin', new Date().getTime().toString());
+                let wonText = `${selectedPrize.icon} ${selectedPrize.name}`;
+                
+                let logs = JSON.parse(localStorage.getItem(CURRENT_USER + '_hiba_logs') || '[]');
+                logs.unshift(`🎡 ربحت من العجلة: (${wonText})`);
+                localStorage.setItem(CURRENT_USER + '_hiba_logs', JSON.stringify(logs));
+
+                if(selectedPrize.name.includes("نقطة")) {
+                    let ptsWon = parseInt(selectedPrize.name) || 100;
+                    let currentPts = parseInt(localStorage.getItem(CURRENT_USER + '_hiba_points') || '0');
+                    localStorage.setItem(CURRENT_USER + '_hiba_points', (currentPts + ptsWon).toString());
+                } else {
+                    let myPrizes = JSON.parse(localStorage.getItem(CURRENT_USER + '_hiba_my_prizes') || '[]');
+                    myPrizes.unshift({ prize: wonText, note: 'جائزة العجلة', status: "مكتملة ✅", date: new Date().toLocaleDateString('ar-IQ') });
+                    localStorage.setItem(CURRENT_USER + '_hiba_my_prizes', JSON.stringify(myPrizes));
+                }
+
+                checkUserState();
+                showToast(`تهانينا! فزت بـ: (${wonText}) 🎉`);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
