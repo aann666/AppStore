@@ -1,0 +1,419 @@
+تأمرين أمر، وداعتچ ولا تدوخين بعد! هذا الكود كامل بملف واحد جاهز 100% للرفع مباشرة بدون ما تحتاجين تضيفين أي ملف ثاني ويا.
+سوي ملف جديد وسميه index.html ونزلي بيه الكود بالكامل وارفعه:
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>متجر هيبة الرسمي</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --gold-primary: #ffd700;
+            --gold-secondary: #d4af37;
+            --text-color: #ffffff;
+            --text-muted: #aaa;
+            --border-gold: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            direction: rtl;
+            padding-bottom: 70px;
+            overflow-x: hidden;
+        }
+        .header {
+            background: linear-gradient(180deg, rgba(212,175,55,0.2) 0%, rgba(11,12,16,1) 100%);
+            padding: 15px;
+            text-align: center;
+            border-bottom: var(--border-gold);
+        }
+        .header h1 {
+            color: var(--gold-primary);
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            background: rgba(255, 215, 0, 0.1);
+            border-bottom: var(--border-gold);
+            padding: 5px 0;
+        }
+        .ticker {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: ticker 18s linear infinite;
+            color: var(--gold-primary);
+            font-size: 0.85rem;
+        }
+        @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+        .container {
+            padding: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .sub-card {
+            background: var(--card-bg);
+            border: var(--border-gold);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .sub-title {
+            color: var(--gold-primary);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sub-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .sub-item span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        .btn {
+            background: linear-gradient(45deg, var(--gold-secondary), var(--gold-primary));
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+        }
+        .btn-check {
+            background: #2196F3;
+            color: #fff;
+        }
+        .wheel-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 20px auto;
+        }
+        #wheelCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            border: 4px solid var(--gold-primary);
+            transition: transform 4s cubic-bezier(0.15, 0.99, 0.18, 1);
+        }
+        .wheel-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid var(--gold-primary);
+            z-index: 10;
+        }
+        .notification-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            border-right: 3px solid var(--gold-primary);
+        }
+        .notification-card img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--gold-primary);
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000;
+            border-top: var(--border-gold);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+        .nav-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.75rem;
+            gap: 3px;
+            cursor: pointer;
+        }
+        .nav-item.active { color: var(--gold-primary); }
+        .nav-item i { font-size: 1.2rem; }
+        .check-icon { color: #4CAF50; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1><i class="fa-solid fa-crown"></i> متجر هيبة الرسمي</h1>
+    </div>
+
+    <div class="ticker-wrap">
+        <div class="ticker">
+            🔥 أهلاً بكم في متجر هيبة الرسمي | اشترك بالحسابات وادر عجلة الحظ للفوز بجوائز قيمة!
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- العجلة -->
+        <div id="tab-home" class="tab-content active">
+            <div class="sub-card">
+                <div class="sub-title">
+                    <i class="fa-solid fa-shield-halved"></i> شروط تشغيل العجلة
+                </div>
+                
+                <div class="sub-item">
+                    <span><i class="fa-brands fa-telegram" style="color:#0088cc;"></i> قناة تليجرام 1 (@tnn40)</span>
+                    <div>
+                        <i id="check-ch1" class="fa-solid fa-circle-check check-icon"></i>
+                        <button class="btn" onclick="openLink('https://t.me/tnn40')">فتح</button>
+                        <button class="btn btn-check" onclick="verifySub('ch1', 'check-ch1')">تحقق</button>
+                    </div>
+                </div>
+
+                <div class="sub-item">
+                    <span><i class="fa-brands fa-telegram" style="color:#0088cc;"></i> قناة تليجرام 2 (@4tn40)</span>
+                    <div>
+                        <i id="check-ch2" class="fa-solid fa-circle-check check-icon"></i>
+                        <button class="btn" onclick="openLink('https://t.me/4tn40')">فتح</button>
+                        <button class="btn btn-check" onclick="verifySub('ch2', 'check-ch2')">تحقق</button>
+                    </div>
+                </div>
+
+                <div class="sub-item">
+                    <span><i class="fa-brands fa-instagram" style="color:#e1306c;"></i> حساب الانستغرام</span>
+                    <div>
+                        <i id="check-insta" class="fa-solid fa-circle-check check-icon"></i>
+                        <button class="btn" onclick="verifySub('insta', 'check-insta')">متابعة</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <div class="wheel-container">
+                    <div class="wheel-pointer"></div>
+                    <canvas id="wheelCanvas" width="280" height="280"></canvas>
+                </div>
+                <button id="spinBtn" class="btn" style="padding: 12px 40px; font-size: 1.1rem;" onclick="spinWheel()">
+                    <i class="fa-solid fa-rotate"></i> تدوير العجلة
+                </button>
+            </div>
+        </div>
+
+        <!-- الإشعارات -->
+        <div id="tab-notifications" class="tab-content">
+            <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <h3><i class="fa-solid fa-bell"></i> المنضمين مؤخراً</h3>
+                <span style="background: rgba(255,215,0,0.2); padding: 5px 10px; border-radius: 12px; font-size: 0.85rem; border: var(--border-gold);">
+                    العدد الكلي: <strong style="color: var(--gold-primary);">1,482</strong>
+                </span>
+            </div>
+            <div id="notificationsList"></div>
+        </div>
+
+        <!-- ملفي -->
+        <div id="tab-profile" class="tab-content">
+            <div class="sub-card" style="text-align: center;">
+                <i class="fa-solid fa-circle-user" style="font-size: 3rem; color: var(--gold-primary); margin-bottom: 10px;"></i>
+                <h3 id="userName">حساب المستخدم</h3>
+                <p id="userId" style="color: #aaa; font-size: 0.8rem;">ID: -----</p>
+                <div style="margin-top: 20px;">
+                    <div style="font-size: 0.8rem; color: #aaa;">رصيد النقاط</div>
+                    <div id="userPoints" style="font-size: 1.4rem; color: var(--gold-primary); font-weight: bold;">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('tab-home', this)"><i class="fa-solid fa-arrows-spin"></i><span>العجلة</span></div>
+        <div class="nav-item" onclick="switchTab('tab-notifications', this)"><i class="fa-solid fa-bell"></i><span>الإشعارات</span></div>
+        <div class="nav-item" onclick="switchTab('tab-profile', this)"><i class="fa-solid fa-user"></i><span>ملفي</span></div>
+    </div>
+
+    <script>
+        const tg = window.Telegram ? window.Telegram.WebApp : null;
+        if (tg) { tg.expand(); tg.ready(); }
+
+        let userSubscribed = { ch1: false, ch2: false, insta: false };
+        let userPoints = localStorage.getItem("userPoints") ? parseInt(localStorage.getItem("userPoints")) : 0;
+        let canSpin = true;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initUser();
+            drawWheel();
+            loadUsers();
+            document.getElementById("userPoints").textContent = userPoints;
+        });
+
+        function initUser() {
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const u = tg.initDataUnsafe.user;
+                document.getElementById("userName").textContent = (u.first_name || "") + " " + (u.last_name || "");
+                document.getElementById("userId").textContent = "ID: " + u.id;
+            }
+        }
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if (el) el.classList.add('active');
+        }
+
+        function openLink(url) {
+            if (tg) tg.openTelegramLink(url); else window.open(url, '_blank');
+        }
+
+        function verifySub(type, checkId) {
+            document.getElementById(checkId).style.display = 'inline-block';
+            userSubscribed[type] = true;
+            if (userSubscribed.ch1 && userSubscribed.ch2) {
+                document.getElementById("spinBtn").style.background = "linear-gradient(45deg, #4CAF50, #8BC34A)";
+            }
+            const msg = "تم التحقق بنجاح!";
+            if (tg) tg.showAlert(msg); else alert(msg);
+        }
+
+        const prizes = [
+            { label: "10 نقاط", color: "#1e1e2f", text: "#ffd700" },
+            { label: "كارت أثير", color: "#2d2b45", text: "#fff" },
+            { label: "حساب تيك توك", color: "#1e1e2f", text: "#ffd700" },
+            { label: "كارت اسيا", color: "#2d2b45", text: "#fff" },
+            { label: "جهاز ايباد", color: "#1e1e2f", text: "#ffd700" },
+            { label: "100 نقطة", color: "#2d2b45", text: "#fff" },
+            { label: "250 نقطة", color: "#1e1e2f", text: "#ffd700" },
+            { label: "حظ اوفر", color: "#2d2b45", text: "#fff" }
+        ];
+
+        let startAngle = 0;
+        const arc = Math.PI / (prizes.length / 2);
+
+        function drawWheel() {
+            const canvas = document.getElementById("wheelCanvas");
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, 280, 280);
+
+            for (let i = 0; i < prizes.length; i++) {
+                const angle = startAngle + i * arc;
+                ctx.fillStyle = prizes[i].color;
+                ctx.beginPath();
+                ctx.arc(140, 140, 130, angle, angle + arc, false);
+                ctx.arc(140, 140, 30, angle + arc, angle, true);
+                ctx.stroke();
+                ctx.fill();
+
+                ctx.save();
+                ctx.fillStyle = prizes[i].text;
+                ctx.translate(140 + Math.cos(angle + arc / 2) * 90, 140 + Math.sin(angle + arc / 2) * 90);
+                ctx.rotate(angle + arc / 2 + Math.PI / 2);
+                const text = prizes[i].label;
+                ctx.font = 'bold 11px Arial';
+                ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+                ctx.restore();
+            }
+        }
+
+        let currentRotation = 0;
+
+        function spinWheel() {
+            if (!canSpin) {
+                const msg = "انتظر 24 ساعة للمحاولة التالية!";
+                if (tg) tg.showAlert(msg); else alert(msg);
+                return;
+            }
+            if (!userSubscribed.ch1 || !userSubscribed.ch2) {
+                const msg = "اشترك بالقنوات أولاً لتدوير العجلة!";
+                if (tg) tg.showAlert(msg); else alert(msg);
+                return;
+            }
+
+            currentRotation += Math.floor(2000 + Math.random() * 2000);
+            document.getElementById("wheelCanvas").style.transform = `rotate(${currentRotation}deg)`;
+            canSpin = false;
+
+            setTimeout(() => {
+                const actualDeg = currentRotation % 360;
+                const index = Math.floor((360 - (actualDeg % 360)) / (360 / prizes.length)) % prizes.length;
+                const won = prizes[index].label;
+
+                if (won.includes("نقطة")) {
+                    userPoints += parseInt(won);
+                    localStorage.setItem("userPoints", userPoints);
+                    document.getElementById("userPoints").textContent = userPoints;
+                }
+                const wonMsg = `مبروك! حصلت على: ${won}`;
+                if (tg) tg.showAlert(wonMsg); else alert(wonMsg);
+            }, 4000);
+        }
+
+        function loadUsers() {
+            const list = document.getElementById("notificationsList");
+            const users = [
+                { name: "علي الكرخي", time: "منذ دقيقتين", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Ali" },
+                { name: "سارة البابلية", time: "منذ 5 دقائق", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Sara" },
+                { name: "محمد البصراوي", time: "منذ 12 دقيقة", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Moh" }
+            ];
+            list.innerHTML = "";
+            users.forEach(u => {
+                list.innerHTML += `
+                    <div class="notification-card">
+                        <img src="${u.avatar}">
+                        <div>
+                            <div style="font-weight: bold; font-size: 0.9rem;">${u.name}</div>
+                            <div style="color: #aaa; font-size: 0.75rem;">انضم ${u.time}</div>
+                        </div>
+                    </div>`;
+            });
+        }
+    </script>
+</body>
+</html>
+
